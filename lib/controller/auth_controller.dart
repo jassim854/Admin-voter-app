@@ -1,50 +1,26 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
-
-
-
-
-
-
 import 'package:admin_voter_app/helper/basehelper.dart';
 import 'package:admin_voter_app/view/home_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-
-
-
 import 'package:uuid/uuid.dart';
-
-
 
 import '../Firebase/firebase_methods.dart';
 import 'package:http/http.dart' as http;
 
-
-
-
-
 import 'package:intl/intl.dart';
 
-
-
-
-
-
 class Auth {
-
   static TextEditingController phoneNumberController = TextEditingController();
   static Future<String?> uploadImage(
     File imageVar,
     context,
   ) async {
-    EasyLoading.show();
+    // EasyLoading.show();
     String? downloadableLink;
     String uniqueFilename = const Uuid().v1();
 
@@ -57,36 +33,25 @@ class Auth {
         return downloadableLink = value;
       });
     } catch (e) {
-      EasyLoading.dismiss();
+      // EasyLoading.dismiss();
       BaseHelper.showSnackBar(context, 'Some thing Went Wrong');
       return downloadableLink = '';
     }
-    EasyLoading.dismiss();
+    // EasyLoading.dismiss();
     return downloadableLink;
   }
 
-  static Future signUp(context,
-      {
-      required String dob,
-
-      required String genderRadio,
-    
-      required String city,
-      required String email,
-      required String password,
-      required String name,
-      required String imageUrl,
-    }) async {
-    if (imageUrl == "null") {
-      BaseHelper.showSnackBar(context, "Please select your Profile Photo");
-      return;
-    }  else if (genderRadio == '') {
-      BaseHelper.showSnackBar(context, "Please select sesso");
-      return;
-    } 
-
+  static Future signUp(
+    context, {
+    required String dob,
+    required String genderRadio,
+    required String city,
+    required String email,
+    required String password,
+    required String name,
+    required String imageUrl,
+  }) async {
     BaseHelper.hideKeypad(context);
-    EasyLoading.show();
 
     try {
       User? user = (await BaseHelper.auth.createUserWithEmailAndPassword(
@@ -98,27 +63,20 @@ class Auth {
         await BaseHelper.auth.currentUser?.updatePhotoURL(imageUrl.toString());
 
         var data = {
-       
-      "name": name,
-      "email": email,
-      "password": password,
- 
-      // "address": address,
+          "name": name,
+          "email": email,
+          "password": password,
 
-      "dob": dob,
-      "city": city,
-      "gender": genderRadio,
+          // "address": address,
 
+          "dob": dob,
+          "city": city,
+          "gender": genderRadio,
 
-
-      "profilePhoto": imageUrl,
-"becomeCandidate":false
-
-  
-           };
+          "profilePhoto": 'https//new.png',
+          "becomeCandidate": false
+        };
         await FirebaseMethod.setUserData(data);
-
-        EasyLoading.dismiss();
 
         await FirebaseMethod.getUserData();
         Navigator.of(context).pushAndRemoveUntil(
@@ -132,20 +90,15 @@ class Auth {
     } on FirebaseAuthException catch (e) {
       BaseHelper.showSnackBar(context, e.message);
     }
-    EasyLoading.dismiss();
     return;
   }
-
 
   static logInAuth(context,
       {required String email, required String password}) async {
     BaseHelper.hideKeypad(context);
-    EasyLoading.show();
     try {
       await BaseHelper.auth.signInWithEmailAndPassword(
           email: email.trim()..toLowerCase(), password: password.trim());
-
-      EasyLoading.dismiss();
 
       await FirebaseMethod.getUserData();
       Navigator.of(context).pushReplacement(
@@ -153,19 +106,15 @@ class Auth {
       );
       return;
     } on FirebaseAuthException catch (e) {
-      EasyLoading.dismiss();
       BaseHelper.showSnackBar(context, e.message);
     }
 
-    EasyLoading.dismiss();
     return;
   }
 
- 
   static signInGoogle(context) async {
     User? user;
     BaseHelper.hideKeypad(context);
-    EasyLoading.show();
 
     List<String> scopes = [
       "https://www.googleapis.com/auth/userinfo.profile",
@@ -181,7 +130,6 @@ class Auth {
       googleSignInAccount = await googleUser.signIn();
     } catch (e) {
       BaseHelper.showSnackBar(context, e.toString());
-      EasyLoading.dismiss();
       return;
     }
 
@@ -201,25 +149,10 @@ class Auth {
         await FirebaseMethod.getUserData();
         if (BaseHelper.user == null) {
           var userData = {
-
-       
-              "name": user?.displayName.toString() ?? "",
-              "email": user?.email.toString() ?? "",
-    
-              "profilePhoto": user?.photoURL.toString() ?? "",
-      
-       
-       
-      
- 
- 
-     
-
-
-
-
-              
-              };
+            "name": user?.displayName.toString() ?? "",
+            "email": user?.email.toString() ?? "",
+            "profilePhoto": user?.photoURL.toString() ?? "",
+          };
 
           final http.Response response = await http.get(
             Uri.parse('https://people.googleapis.com/v1/people/me'
@@ -247,7 +180,6 @@ class Auth {
 
                 int days = DateTime.now().difference(date).inDays;
                 if (days < 6570) {
-                  EasyLoading.dismiss();
                   BaseHelper.showSnackBar(
                       context, 'your age is less than 18 years');
                   BaseHelper.auth.currentUser?.delete();
@@ -257,7 +189,6 @@ class Auth {
                 FirebaseMethod.updateData(
                     {"dob": DateFormat('MMM,dd,yyyy').format(date)});
               } else {
-                EasyLoading.dismiss();
                 BaseHelper.showSnackBar(context, "failed to retrieve dob");
                 return null;
               }
@@ -272,12 +203,10 @@ class Auth {
                           : ''
                 });
               } else {
-                EasyLoading.dismiss();
                 BaseHelper.showSnackBar(context, "failed to retrieve gender");
                 return null;
               }
             } else {
-              EasyLoading.dismiss();
               BaseHelper.showSnackBar(context,
                   "Your Selected email: ${BaseHelper.auth.currentUser?.email} does not have gender and dob details");
 
@@ -286,8 +215,6 @@ class Auth {
               return null;
             }
           } else {
-            EasyLoading.dismiss();
-
             BaseHelper.showSnackBar(
                 context, "Something went wrong geting data from google");
             BaseHelper.auth.currentUser?.delete();
@@ -299,8 +226,6 @@ class Auth {
           await FirebaseMethod.getUserData();
         }
 
-        EasyLoading.dismiss();
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeView()),
@@ -309,37 +234,27 @@ class Auth {
 
         return user;
       } on FirebaseAuthException catch (e) {
-        EasyLoading.dismiss();
         BaseHelper.showSnackBar(context, e.message);
         GoogleSignIn().signOut();
       }
     } else {
-      EasyLoading.dismiss();
       BaseHelper.showSnackBar(context, "Select account for login");
       return null;
     }
 
-    EasyLoading.dismiss();
     return null;
   }
 
-
-
-
-
   static logOut(context) async {
-    EasyLoading.show();
-
     if (BaseHelper.currentUser?.providerData.first.providerId.toString() ==
         'google.com') {
       await GoogleSignIn().signOut();
-    } 
+    }
 
     await FirebaseAuth.instance.signOut();
 
     BaseHelper.user = null;
     BaseHelper.currentUser = BaseHelper.auth.currentUser;
-    EasyLoading.dismiss();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const HomeView()),
       (route) => false,
@@ -348,17 +263,14 @@ class Auth {
 
   static Future forgetPassword(context, {required String email}) async {
     BaseHelper.hideKeypad(context);
-    EasyLoading.show();
     try {
       await BaseHelper.auth.sendPasswordResetEmail(
         email: email.trim()..toLowerCase(),
       );
     } on FirebaseAuthException catch (e) {
-      EasyLoading.dismiss();
       BaseHelper.showSnackBar(context, e.message);
       return;
     }
-    EasyLoading.dismiss();
     BaseHelper.showSnackBar(context,
         'Password Reset Email Sent Has been sent to ${email.trim().toLowerCase()}');
 

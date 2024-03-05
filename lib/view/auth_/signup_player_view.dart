@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:admin_voter_app/utilis/app_colors.dart';
 import 'package:admin_voter_app/utilis/app_typography.dart';
 import 'package:admin_voter_app/utilis/validators.dart';
+import 'package:admin_voter_app/view/auth_/login_view.dart';
 import 'package:admin_voter_app/widget/app_bar_widget.dart';
 import 'package:admin_voter_app/widget/circle_imagw_widget.dart';
 import 'package:admin_voter_app/widget/custom_button_widget.dart';
@@ -74,9 +75,11 @@ class _SignupPlayerViewState extends State<SignupPlayerView> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         BaseHelper.hideKeypad(context);
+        // ignore: unused_local_variable
         bool? shouldPop;
         // if (updated == true) {
         //   shouldPop = await showDialog(
@@ -111,7 +114,7 @@ class _SignupPlayerViewState extends State<SignupPlayerView> {
                     children: [
                       CustomCircleAvatar(
                         radius: 60,
-                        images: "ImagePath.loginlogo,",
+                        images:'',
                         
                         imageUrl: imageUrl,
                       ),
@@ -131,6 +134,7 @@ class _SignupPlayerViewState extends State<SignupPlayerView> {
                                     await BaseHelper.imagePickerSheet(context);
 
                                 if (imageVar != null) {
+                                  // ignore: use_build_context_synchronously
                                   await Auth.uploadImage(
                                     imageVar,
                                     context,
@@ -305,7 +309,20 @@ class _SignupPlayerViewState extends State<SignupPlayerView> {
                       }),
                   const SizedBox(
                     height: 30,
-                  )
+                  ),
+                   CustomButton(
+                      color: AppColor.divivdercolor,
+                      height: height * 0.06,
+                      width: width * 0.8,
+                      text: "Login",
+                      style: subTitle16DarkGreyStyle.copyWith(fontSize: 22),
+                      onpressed: () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const LoginView()),
+                          (route) => false,
+                        );
+                      }),
                 ],
               ),
             ),
